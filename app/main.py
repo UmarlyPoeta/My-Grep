@@ -1,15 +1,17 @@
 import sys
 
+
 # import pyparsing - available if you need it!
 # import lark - available if you need it!
 
 
 def match_pattern(input_line, pattern):
-    if "\d" in pattern:
+    if r"\d" in pattern:
         for character in input_line:
             try:
-                return int(character)
-            except TypeError:
+                int(character)
+                return True
+            except ValueError:
                 continue
         return False
     if len(pattern) == 1:
