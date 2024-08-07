@@ -5,6 +5,13 @@ import sys
 
 
 def match_pattern(input_line, pattern):
+    if "\d" in pattern:
+        for character in input_line:
+            try:
+                return int(character)
+            except TypeError:
+                continue
+        return False
     if len(pattern) == 1:
         return pattern in input_line
     else:
