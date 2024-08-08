@@ -20,6 +20,13 @@ class Grep:
     def match_group(self) -> bool:
         return any(character in self.pattern[1:-1] for character in self.line)
     
+    def brackets_valid(self) -> bool:
+        try:
+            if "[" in self.pattern and "]" in self.pattern and self.pattern.index("]") > self.pattern.index("["):
+                return True
+        except ValueError:
+            return False
+    
     def match_pattern(self) -> bool | RuntimeError:
         match self.pattern:
             case "\\w":
@@ -27,12 +34,11 @@ class Grep:
             case "\\d":
                 return self.match_digits()
             case _:
-                if "[" in self.pattern and "]" in self.pattern:
-                    if self.pattern.index("]") > self.pattern.index("["):
-                        if "^" in self.pattern:
-                            return not self.match_group()
-                        else:
-                            return self.match_group()
+                if self.brackets_valid():
+                    if "^" in self.pattern:
+                        return not self.match_group()
+                    else:
+                        return self.match_group()
                 if len(self.pattern) ==1:
                     return self.pattern in self.line
                 else:
