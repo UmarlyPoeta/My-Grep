@@ -29,7 +29,10 @@ class Grep:
             case _:
                 if "[" in self.pattern and "]" in self.pattern:
                     if self.pattern.index("]") > self.pattern.index("["):
-                        return self.match_group()
+                        if "^" in self.pattern:
+                            return not self.match_group()
+                        else:
+                            return self.match_group()
                 if len(self.pattern) ==1:
                     return self.pattern in self.line
                 else:
