@@ -1,6 +1,5 @@
 import sys
 
-
 # import pyparsing - available if you need it!
 # import lark - available if you need it!
 
@@ -18,13 +17,19 @@ class Grep:
     def match_digits(self) -> bool:
         return any(character.isdigit() for character in self.line)
     
+    def match_group(self) -> bool:
+        return any(character in self.pattern[1:-1] for character in self.line)
+    
     def match_pattern(self) -> bool | RuntimeError:
         match self.pattern:
-            case "\w":
+            case "\\w":
                 return self.match_alphanumeric()
-            case "\d":
+            case "\\d":
                 return self.match_digits()
             case _:
+                if "[" in self.pattern and "]" in self.pattern:
+                    if self.pattern.index("]") > self.pattern.index("["):
+                        return self.match_group()
                 if len(self.pattern) ==1:
                     return self.pattern in self.line
                 else:
