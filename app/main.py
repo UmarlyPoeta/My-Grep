@@ -1,58 +1,88 @@
 import sys
 
+
 # import pyparsing - available if you need it!
 # import lark - available if you need it!
 
 class Grep:
-    def __init__(self, line:str, pattern: str) -> None:
+    def __init__(self, line: str, pattern: str) -> None:
         self.line = line
         self.pattern = pattern
-    
-    def match_alphanumeric(self) -> bool:
-        return self.match_alphabetic() or self.match_digits() or "_" in self.line
-    
-    def match_alphabetic(self) -> bool:
-        return any(True if ord(character) in range(97,97+26) else False for character in self.line.lower())
-    
-    def match_digits(self) -> bool:
-        return any(character.isdigit() for character in self.line)
-    
-    def match_group(self) -> bool:
-        return any(character in self.pattern[1:-1] for character in self.line)
-    
+
+    def match_alphanumeric(self, character: chr) -> bool:
+        return self.match_alphabetic(character) or self.match_digits(character) or "_" == character
+
+    @staticmethod
+    def match_alphabetic(character: chr) -> bool:
+        return ord(character) in range(97, 97+26)
+
+    @staticmethod
+    def match_digits(character: chr) -> bool:
+        return character.isdigit()
+
+    @staticmethod
+    def match_groups(character: chr, group_characters: str, is_negative: bool = False) -> object:
+        return character not in group_characters if is_negative else character in group_characters
+
     def brackets_valid(self) -> bool:
         try:
-            if "[" in self.pattern and "]" in self.pattern and self.pattern.index("]") > self.pattern.index("["):
+            if "]" in self.pattern and self.pattern.index("]") > self.pattern.index("["):
                 return True
         except ValueError:
             return False
-    
-    def match_pattern(self) -> bool | RuntimeError:
-        match self.pattern:
-            case "\\w":
-                return self.match_alphanumeric()
-            case "\\d":
-                return self.match_digits()
-            case _:
-                if self.brackets_valid():
-                    if "^" in self.pattern:
-                        return not self.match_group()
+
+    def check_if_found(self) -> bool | RuntimeError:
+        line_pointer = 0
+        pattern_pointer = 0
+
+        found = False
+
+        while line_pointer < len(self.line) and pattern_pointer < len(self.pattern):
+            match self.pattern[pattern_pointer]:
+                case "\\":
+                    pattern_pointer += 1
+                    if self.pattern[pattern_pointer] == "w":
+                        found = self.match_alphanumeric(self.line[line_pointer])
+                    elif self.pattern[pattern_pointer] == "d":
+                        found = self.match_digits(self.line[line_pointer])
                     else:
-                        return self.match_group()
-                if len(self.pattern) ==1:
-                    return self.pattern in self.line
-                else:
-                    raise RuntimeError(f"Unhandled pattern: {self.pattern}")
+                        return False
+                case "[":
+                    if self.brackets_valid():
+                        if self.pattern[pattern_pointer + 1] == "^":
+                            extracted_characters = self.pattern[pattern_pointer+2:self.pattern[pattern_pointer:].index("]")]
+                            found = self.match_groups(self.line[line_pointer], extracted_characters, True)
+                        else:
+                            extracted_characters = self.pattern[pattern_pointer+1:self.pattern[pattern_pointer:].index("]")]
+                            found = self.match_groups(self.line[line_pointer], extracted_characters)
+                        if self.pattern[pattern_pointer:].index("]") + 1 < len(self.pattern):
+                            pattern_pointer = self.line[line_pointer:].index("]") + 1
+                        else:
+                            line_pointer += 1
+                            continue
+                case _:
+                    found = self.line[line_pointer] == self.pattern[pattern_pointer]
+            line_pointer += 1
+            if found:
+                pattern_pointer += 1
+            else:
+                pattern_pointer = 0
+
+            if line_pointer >= len(self.line) and pattern_pointer < len(self.pattern):
+                return False
+
+            if pattern_pointer == len(self.pattern) - 1:
+                break
+        return found
 
 
 def main():
     grep = Grep(sys.stdin.read(), sys.argv[2])
-    
     if sys.argv[1] != "-E":
         print("Expected first argument to be '-E'")
         exit(1)
 
-    if grep.match_pattern():
+    if grep.check_if_found():
         exit(0)
     else:
         exit(1)
