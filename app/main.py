@@ -70,7 +70,6 @@ class Grep:
                         if self.pattern[pattern_pointer + 1 ] == "+":
                             is_found = False
                             while self.line[line_pointer] == self.pattern[pattern_pointer]:
-                                print(self.pattern[pattern_pointer], pattern_pointer, self.line[line_pointer], line_pointer)
                                 line_pointer += 1
                                 found = True
                                 is_found = True
