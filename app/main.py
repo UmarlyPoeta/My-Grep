@@ -31,7 +31,7 @@ class Grep:
         except ValueError:
             return False
 
-    def check_if_found(self) -> bool | RuntimeError:
+    def check_if_found(self) -> bool:
         line_pointer = 0
         pattern_pointer = 0
 
@@ -79,13 +79,21 @@ class Grep:
                             pattern_pointer += 2
                     except IndexError:
                         pass
+                    
+                    try:
+                        if self.pattern[pattern_pointer + 1 ] == "?":
+                            if self.line[line_pointer] == self.pattern[pattern_pointer]:
+                                line_pointer += 1
+                                found = True
+                            pattern_pointer += 2
+                    except IndexError:
+                        pass
                     found = self.line[line_pointer] == self.pattern[pattern_pointer]
                     if pattern_pointer + 1 == len(self.pattern) - 1 and self.pattern[pattern_pointer + 1] == "$":
                         if line_pointer == len(self.line) - 1:
                             return True
                         else:
                             return False
-            print(self.pattern[pattern_pointer], pattern_pointer, self.line[line_pointer], line_pointer, found)
             line_pointer += 1
             if found:
                 pattern_pointer += 1
