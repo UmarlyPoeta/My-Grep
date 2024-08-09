@@ -66,19 +66,27 @@ class Grep:
                             line_pointer += 1
                             continue
                 case _:
-                    if self.pattern[pattern_pointer + 1 ] == "+":
-                        for _ in range(len(self.pattern) - self.pattern[pattern_pointer:].index("+")):
-                            if not self.line[line_pointer] == self.pattern[pattern_pointer]:
-                                return False
-                            found = self.line[line_pointer] == self.pattern[pattern_pointer]
-                            line_pointer += 1
-                        pattern_pointer += 1
+                    try:
+                        if self.pattern[pattern_pointer + 1 ] == "+":
+                            is_found = False
+                            while self.line[line_pointer] == self.pattern[pattern_pointer]:
+                                print(self.pattern[pattern_pointer], pattern_pointer, self.line[line_pointer], line_pointer)
+                                line_pointer += 1
+                                found = True
+                                is_found = True
+                            if not is_found:
+                                pattern_pointer = 0
+                            
+                            pattern_pointer += 2
+                    except IndexError:
+                        pass
                     found = self.line[line_pointer] == self.pattern[pattern_pointer]
                     if pattern_pointer + 1 == len(self.pattern) - 1 and self.pattern[pattern_pointer + 1] == "$":
                         if line_pointer == len(self.line) - 1:
                             return True
                         else:
                             return False
+            print(self.pattern[pattern_pointer], pattern_pointer, self.line[line_pointer], line_pointer, found)
             line_pointer += 1
             if found:
                 pattern_pointer += 1
