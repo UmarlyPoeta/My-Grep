@@ -30,11 +30,11 @@ class Grep:
                 return True
         except ValueError:
             return False
-
+    
     def check_if_found(self) -> bool:
         line_pointer: int = 0
         pattern_pointer: int = 0
-
+        
         found: bool = False
         if self.pattern[pattern_pointer] == "^":
             if not self.pattern[pattern_pointer + 1] == self.line[line_pointer]:
@@ -113,11 +113,20 @@ class Grep:
 
 
 def main():
-    grep = Grep(sys.stdin.read(), sys.argv[2])
     if sys.argv[1] != "-E":
         print("Expected first argument to be '-E'")
         exit(1)
-
+    input_line = sys.stdin.read()
+    if "|" in sys.argv[2]:
+        raw_pattern = sys.argv[2]
+        alternetions = [raw_pattern[:raw_pattern.index("(")] + alteretion for alteretion in raw_pattern[raw_pattern.index("(") + 1:raw_pattern.index(")")].split("|")]
+        for pattern in alternetions:
+            if Grep(input_line, pattern).check_if_found():
+                exit(0)
+        exit(1)
+    
+    grep = Grep(input_line, sys.argv[2])
+    
     if grep.check_if_found():
         exit(0)
     else:
