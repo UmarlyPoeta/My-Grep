@@ -32,10 +32,10 @@ class Grep:
             return False
 
     def check_if_found(self) -> bool:
-        line_pointer = 0
-        pattern_pointer = 0
+        line_pointer: int = 0
+        pattern_pointer: int = 0
 
-        found = False
+        found: bool = False
         if self.pattern[pattern_pointer] == "^":
             if not self.pattern[pattern_pointer + 1] == self.line[line_pointer]:
                 return False
@@ -66,6 +66,10 @@ class Grep:
                             line_pointer += 1
                             continue
                 case _:
+                    if self.pattern[pattern_pointer] == ".":
+                        pattern_pointer += 1
+                        line_pointer += 1
+                        continue
                     try:
                         if self.pattern[pattern_pointer + 1 ] == "+":
                             is_found = False
