@@ -67,6 +67,11 @@ class Grep:
                             continue
                 case _:
                     found = self.line[line_pointer] == self.pattern[pattern_pointer]
+                    if pattern_pointer + 1 == len(self.pattern) - 1 and self.pattern[pattern_pointer + 1] == "$":
+                        if line_pointer == len(self.line) - 1:
+                            return True
+                        else:
+                            return False
             line_pointer += 1
             if found:
                 pattern_pointer += 1
