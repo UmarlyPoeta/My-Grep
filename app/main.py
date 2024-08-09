@@ -36,7 +36,12 @@ class Grep:
         pattern_pointer = 0
 
         found = False
-
+        if self.pattern[pattern_pointer] == "^":
+            if not self.pattern[pattern_pointer + 1] == self.line[line_pointer]:
+                return False
+            else:
+                pattern_pointer += 1
+        
         while line_pointer < len(self.line) and pattern_pointer < len(self.pattern):
             match self.pattern[pattern_pointer]:
                 case "\\":
